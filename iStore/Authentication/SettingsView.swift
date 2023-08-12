@@ -13,6 +13,27 @@ final class SettingsViewModel: ObservableObject {
     func signOut() throws {
         try? AuthenticationManger.shared.signOut()
     }
+    
+    func resetPassword() async throws {
+        
+        let authenticatedUser = try AuthenticationManger.shared.getAuthenticatedUser()
+        
+        guard let email = authenticatedUser.email else {
+            throw URLError(.fileDoesNotExist)
+        }
+        
+        try await AuthenticationManger.shared.resetPassword(email: email)
+    }
+    
+    func updateEmail() async throws {
+        let email = "hello@email.com"
+        try await AuthenticationManger.shared.updateEmail(email: email)
+    }
+    
+    func updatePassword() async throws {
+      let password = "12345"
+        try await AuthenticationManger.shared.updatePassword(password: password)
+    }
 }
 
 struct SettingsView: View {
@@ -32,8 +53,52 @@ struct SettingsView: View {
             } label: {
                 Text("Logout")
             }
-
+            
+            
+            Section {
+                Button {
+                    Task {
+                        do{
+                           try await viewModel.resetPassword()
+                          print("Password reset successfully")
+                        } catch {
+                            print(error)
+                        }
+                    }
+                } label: {
+                    Text("Reset password")
+                }
+                
+                Button {
+                    Task {
+                        do{
+                           try await viewModel.updatePassword()
+                          print("Password updated successfully")
+                        } catch {
+                            print(error)
+                        }
+                    }
+                } label: {
+                    Text("Update password")
+                }
+                
+                Button {
+                    Task {
+                        do{
+                           try await viewModel.updateEmail()
+                          print("Email updated successfully")
+                        } catch {
+                            print(error)
+                        }
+                    }
+                } label: {
+                    Text("Update Email")
+                }
+            } header: {
+                Text("Email Functions")
+            }
         }
+        .navigationTitle("Settings")
     }
 }
 
