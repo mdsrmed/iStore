@@ -10,6 +10,14 @@ import SwiftUI
 @MainActor
 final class SettingsViewModel: ObservableObject {
     
+    @Published var authProviders: [AuthProviderOption] = []
+    
+    func loadProviders() throws {
+        if let providers = try? AuthenticationManger.shared.getProviders(){
+            authProviders = providers
+        }
+    }
+    
     func signOut() throws {
         try? AuthenticationManger.shared.signOut()
     }
@@ -54,50 +62,15 @@ struct SettingsView: View {
                 Text("Logout")
             }
             
-            
-            Section {
-                Button {
-                    Task {
-                        do{
-                           try await viewModel.resetPassword()
-                          print("Password reset successfully")
-                        } catch {
-                            print(error)
-                        }
-                    }
-                } label: {
-                    Text("Reset password")
-                }
-                
-                Button {
-                    Task {
-                        do{
-                           try await viewModel.updatePassword()
-                          print("Password updated successfully")
-                        } catch {
-                            print(error)
-                        }
-                    }
-                } label: {
-                    Text("Update password")
-                }
-                
-                Button {
-                    Task {
-                        do{
-                           try await viewModel.updateEmail()
-                          print("Email updated successfully")
-                        } catch {
-                            print(error)
-                        }
-                    }
-                } label: {
-                    Text("Update Email")
-                }
-            } header: {
-                Text("Email Functions")
+            if viewModel.authProviders.contains(.email){
+                emailSection
             }
+            
         }
+        .onAppear {
+           try? viewModel.loadProviders()
+        }
+        
         .navigationTitle("Settings")
     }
 }
@@ -106,6 +79,55 @@ struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             SettingsView(showSignInView: .constant(false))
+        }
+    }
+}
+
+
+extension SettingsView {
+    
+    var emailSection: some View {
+        Section {
+            Button {
+                Task {
+                    do{
+                       try await viewModel.resetPassword()
+                      print("Password reset successfully")
+                    } catch {
+                        print(error)
+                    }
+                }
+            } label: {
+                Text("Reset password")
+            }
+            
+            Button {
+                Task {
+                    do{
+                       try await viewModel.updatePassword()
+                      print("Password updated successfully")
+                    } catch {
+                        print(error)
+                    }
+                }
+            } label: {
+                Text("Update password")
+            }
+            
+            Button {
+                Task {
+                    do{
+                       try await viewModel.updateEmail()
+                      print("Email updated successfully")
+                    } catch {
+                        print(error)
+                    }
+                }
+            } label: {
+                Text("Update Email")
+            }
+        } header: {
+            Text("Email Functions")
         }
     }
 }
