@@ -12,14 +12,9 @@ import AuthenticationServices
 import CryptoKit
 
 
-
-
-
 @MainActor
 final class AuthenticationViewModel: ObservableObject {
     
-
-    @Published var didSignInWithApple: Bool = false
     let signInAppleHelper = SignInAppleHelper()
     
     
@@ -31,35 +26,12 @@ final class AuthenticationViewModel: ObservableObject {
     
     //Apple
     func signInApple() async throws {
-        signInAppleHelper.startSignInWithAppleFlow { result in
-            switch result {
-            case .success(let signInWithAppleResult):
-                 Task {
-                     do{
-                         try await AuthenticationManger.shared.signInWithApple(tokens: signInWithAppleResult)
-                         self.didSignInWithApple = true
-                     } catch {
-                         
-                     }
-                 }
-                 
-                
-            case .failure(let error):
-                print(error)
-            }
-            
-        }
-        
-        
+        let helper = SignInAppleHelper()
+        let tokens = try await helper.startSignInWithAppleFlow()
+        try await AuthenticationManger.shared.signInWithApple(tokens: tokens)
+
     }
-    
-    
 }
-
-
-
-
-
 
 struct AuthenticationView: View {
     
@@ -97,7 +69,7 @@ struct AuthenticationView: View {
                 Task{
                     do {
                         try await viewModel.signInApple()
-                       // showSignInView = false
+                        showSignInView = false
                     } catch {
                         print(error)
                     }
@@ -107,13 +79,6 @@ struct AuthenticationView: View {
                     .allowsHitTesting(false)
             }
             .frame(height: 55)
-            .onChange(of: viewModel.didSignInWithApple) { newValue in
-                if newValue {
-                    showSignInView = false
-                }
-            }
-
-            
             Spacer()
         }
         .padding()

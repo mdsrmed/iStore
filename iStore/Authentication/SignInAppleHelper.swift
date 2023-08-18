@@ -16,6 +16,8 @@ import CryptoKit
 struct SignInWithAppleResult {
     let token: String
     let nonce: String
+    let name: String?
+    let email: String?
 }
 
 //Apple
@@ -38,6 +40,24 @@ final class SignInAppleHelper: NSObject {
     
     private var currentNonce: String?
     private var completionHandler: ((Result<SignInWithAppleResult,Error>) -> Void)?
+    
+    func startSignInWithAppleFlow() async throws -> SignInWithAppleResult{
+      try await withCheckedThrowingContinuation { continuation in
+            self.startSignInWithAppleFlow { result in
+                switch result {
+                case .success(let signInAppleResult):
+                    continuation.resume(returning: signInAppleResult)
+                    return
+                    
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                    return
+                }
+            }
+        }
+    }
+    
+    
     
     func startSignInWithAppleFlow(completion: @escaping (Result<SignInWithAppleResult,Error>) -> Void) {
         guard let topVC = Utilities.shared.topViewController() else {
@@ -109,7 +129,10 @@ extension SignInAppleHelper: ASAuthorizationControllerDelegate {
             return
         }
         
-        let tokens = SignInWithAppleResult(token: idTokenString, nonce: nonce)
+        let name = appleIDCredential.fullName?.givenName
+        let email = appleIDCredential.email
+        
+        let tokens = SignInWithAppleResult(token: idTokenString, nonce: nonce, name: name, email: email)
         completionHandler?(.success(tokens))
         
     }
