@@ -8,6 +8,9 @@
 import SwiftUI
 import GoogleSignIn
 import GoogleSignInSwift
+import AuthenticationServices
+import CryptoKit
+
 
 
 
@@ -15,13 +18,47 @@ import GoogleSignInSwift
 @MainActor
 final class AuthenticationViewModel: ObservableObject {
     
+
+    @Published var didSignInWithApple: Bool = false
+    let signInAppleHelper = SignInAppleHelper()
+    
+    
     func signInGoogle () async throws {
         let helper = SignInGoogleHelper()
         let tokens = try await helper.signIn()
         try await AuthenticationManger.shared.signInWithGoogle(tokens: tokens)
     }
     
+    //Apple
+    func signInApple() async throws {
+        signInAppleHelper.startSignInWithAppleFlow { result in
+            switch result {
+            case .success(let signInWithAppleResult):
+                 Task {
+                     do{
+                         try await AuthenticationManger.shared.signInWithApple(tokens: signInWithAppleResult)
+                         self.didSignInWithApple = true
+                     } catch {
+                         
+                     }
+                 }
+                 
+                
+            case .failure(let error):
+                print(error)
+            }
+            
+        }
+        
+        
+    }
+    
+    
 }
+
+
+
+
 
 
 struct AuthenticationView: View {
@@ -54,6 +91,29 @@ struct AuthenticationView: View {
                     }
                 }
             }
+            
+            //Apple
+            Button {
+                Task{
+                    do {
+                        try await viewModel.signInApple()
+                       // showSignInView = false
+                    } catch {
+                        print(error)
+                    }
+                }
+            } label: {
+                SignInWithAppleButtonViewRepresentable(type: .default, style: .black)
+                    .allowsHitTesting(false)
+            }
+            .frame(height: 55)
+            .onChange(of: viewModel.didSignInWithApple) { newValue in
+                if newValue {
+                    showSignInView = false
+                }
+            }
+
+            
             Spacer()
         }
         .padding()

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		21928F672A90264600734A00 /* SignInAppleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21928F662A90264600734A00 /* SignInAppleHelper.swift */; };
 		21957BA42A8ECD200059D227 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 21957BA32A8ECD200059D227 /* GoogleSignIn */; };
 		21957BA62A8ECD200059D227 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 21957BA52A8ECD200059D227 /* GoogleSignInSwift */; };
 		21957BAB2A8ED23C0059D227 /* Utilites.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21957BAA2A8ED23C0059D227 /* Utilites.swift */; };
@@ -27,6 +28,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		21928F662A90264600734A00 /* SignInAppleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInAppleHelper.swift; sourceTree = "<group>"; };
 		21957BA72A8ECD900059D227 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		21957BAA2A8ED23C0059D227 /* Utilites.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilites.swift; sourceTree = "<group>"; };
 		21957BAC2A8EDEEF0059D227 /* SignInGoogleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInGoogleHelper.swift; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 				21B4179A2A86E7C600FE34A1 /* AuthenticationManager.swift */,
 				21B4179E2A86F49C00FE34A1 /* SettingsView.swift */,
 				21957BAC2A8EDEEF0059D227 /* SignInGoogleHelper.swift */,
+				21928F662A90264600734A00 /* SignInAppleHelper.swift */,
 			);
 			path = Authentication;
 			sourceTree = "<group>";
@@ -217,6 +220,7 @@
 				21957BAB2A8ED23C0059D227 /* Utilites.swift in Sources */,
 				21B417972A86E1EF00FE34A1 /* AuthenticationView.swift in Sources */,
 				21B4179B2A86E7C600FE34A1 /* AuthenticationManager.swift in Sources */,
+				21928F672A90264600734A00 /* SignInAppleHelper.swift in Sources */,
 				21B417992A86E40C00FE34A1 /* SignInEmailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
