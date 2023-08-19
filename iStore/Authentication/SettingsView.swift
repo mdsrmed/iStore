@@ -11,36 +11,59 @@ import SwiftUI
 final class SettingsViewModel: ObservableObject {
     
     @Published var authProviders: [AuthProviderOption] = []
+    @Published var authUser: AuthDataResultModel? = nil
     
-    func loadProviders() throws {
-        if let providers = try? AuthenticationManger.shared.getProviders(){
+    func loadAuthProviders() throws {
+        if let providers = try? AuthenticationManager.shared.getProviders(){
             authProviders = providers
         }
     }
     
     func signOut() throws {
-        try? AuthenticationManger.shared.signOut()
+        try? AuthenticationManager.shared.signOut()
+    }
+    
+    func loadAuthUser() throws {
+        self.authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
     }
     
     func resetPassword() async throws {
         
-        let authenticatedUser = try AuthenticationManger.shared.getAuthenticatedUser()
+        let authenticatedUser = try AuthenticationManager.shared.getAuthenticatedUser()
         
         guard let email = authenticatedUser.email else {
             throw URLError(.fileDoesNotExist)
         }
         
-        try await AuthenticationManger.shared.resetPassword(email: email)
+        try await AuthenticationManager.shared.resetPassword(email: email)
     }
     
     func updateEmail() async throws {
         let email = "hello@email.com"
-        try await AuthenticationManger.shared.updateEmail(email: email)
+        try await AuthenticationManager.shared.updateEmail(email: email)
     }
     
     func updatePassword() async throws {
       let password = "12345"
-        try await AuthenticationManger.shared.updatePassword(password: password)
+        try await AuthenticationManager.shared.updatePassword(password: password)
+    }
+    
+    func linkGoogleAccount() async throws {
+        let helper = SignInGoogleHelper()
+        let tokens = try await helper.signIn()
+        self.authUser = try await AuthenticationManager.shared.linkGoogle(tokens: tokens)
+    }
+    
+    func linkAppleAccount() async throws {
+        let helper = SignInAppleHelper()
+        let tokens = try await helper.startSignInWithAppleFlow()
+        self.authUser = try await AuthenticationManager.shared.linkApple(tokens: tokens)
+    }
+    
+    func linkEmailAccount() async throws {
+        let email = "email@email.com"
+        let password = "123456"
+        self.authUser = try await AuthenticationManager.shared.linkEmail(email: email, password: password)
     }
 }
 
@@ -66,9 +89,14 @@ struct SettingsView: View {
                 emailSection
             }
             
+            if ((viewModel.authUser?.isAnonymous) != nil) {
+                anonymousSection
+            }
+            
         }
         .onAppear {
-           try? viewModel.loadProviders()
+           try? viewModel.loadAuthProviders()
+           try? viewModel.loadAuthUser()
         }
         
         .navigationTitle("Settings")
@@ -128,6 +156,52 @@ extension SettingsView {
             }
         } header: {
             Text("Email Functions")
+        }
+    }
+    
+    
+    var anonymousSection: some View {
+        Section {
+            Button {
+                Task {
+                    do{
+                       try await viewModel.linkGoogleAccount()
+                      
+                    } catch {
+                        print(error)
+                    }
+                }
+            } label: {
+                Text("Link Google Account")
+            }
+            
+            Button {
+                Task {
+                    do{
+                       try await viewModel.linkAppleAccount()
+                      
+                    } catch {
+                        print(error)
+                    }
+                }
+            } label: {
+                Text("Link Apple Account")
+            }
+            
+            Button {
+                Task {
+                    do{
+                       try await viewModel.linkEmailAccount()
+                     
+                    } catch {
+                        print(error)
+                    }
+                }
+            } label: {
+                Text("Link Email Account")
+            }
+        } header: {
+            Text("Create Account")
         }
     }
 }

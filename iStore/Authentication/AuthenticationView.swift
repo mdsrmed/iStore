@@ -15,20 +15,25 @@ import CryptoKit
 @MainActor
 final class AuthenticationViewModel: ObservableObject {
     
-    let signInAppleHelper = SignInAppleHelper()
+   // let signInAppleHelper = SignInAppleHelper()
     
     
     func signInGoogle () async throws {
         let helper = SignInGoogleHelper()
         let tokens = try await helper.signIn()
-        try await AuthenticationManger.shared.signInWithGoogle(tokens: tokens)
+        try await AuthenticationManager.shared.signInWithGoogle(tokens: tokens)
     }
     
     //Apple
     func signInApple() async throws {
         let helper = SignInAppleHelper()
         let tokens = try await helper.startSignInWithAppleFlow()
-        try await AuthenticationManger.shared.signInWithApple(tokens: tokens)
+        try await AuthenticationManager.shared.signInWithApple(tokens: tokens)
+
+    }
+    
+    func signInAnonymous() async throws {
+        try await AuthenticationManager.shared.signInAnonymous()
 
     }
 }
@@ -40,6 +45,25 @@ struct AuthenticationView: View {
     
     var body: some View {
         VStack {
+            
+            Button {
+                Task{
+                    do {
+                        try await viewModel.signInAnonymous()
+                        showSignInView = false
+                    } catch {
+                        print(error)
+                    }
+                }
+            } label: {
+                Text("Sign In Anonymously")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 55)
+                    .background(.green)
+                    .cornerRadius(10)
+            }
             
             NavigationLink {
                 SigninEmailView(showSignInView: $showSignInView)

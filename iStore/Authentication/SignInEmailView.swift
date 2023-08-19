@@ -20,7 +20,7 @@ final class SignInEmailViewModel: ObservableObject {
             print("No email or password found")
             return
         }
-      let returnedUserData = try await AuthenticationManger.shared.createUser(email: email, password: password)
+      let returnedUserData = try await AuthenticationManager.shared.createUser(email: email, password: password)
     }
     
     
@@ -29,7 +29,7 @@ final class SignInEmailViewModel: ObservableObject {
             print("No email or password found")
             return
         }
-      let returnedUserData = try await AuthenticationManger.shared.signIn(email: email, password: password)
+      let returnedUserData = try await AuthenticationManager.shared.signIn(email: email, password: password)
     }
     
     
@@ -63,7 +63,7 @@ struct SigninEmailView: View {
                     .cornerRadius(10)
                 
                 Button {
-                    task {
+                    Task {
                         do{
                             try await vm.signUp()
                             showSignInView = false
